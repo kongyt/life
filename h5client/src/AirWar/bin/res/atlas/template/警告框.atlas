@@ -1,0 +1,75 @@
+{
+    "frames": {
+        "btn_alert dialogLeftButton.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 271,
+                "h": 178,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 271,
+                "h": 178
+            },
+            "sourceSize": {
+                "w": 271,
+                "h": 178
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "btn_alert dialogRightButton.png": {
+            "frame": {
+                "x": 0,
+                "y": 180,
+                "w": 271,
+                "h": 178,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 271,
+                "h": 178
+            },
+            "sourceSize": {
+                "w": 271,
+                "h": 178
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "label.png": {
+            "frame": {
+                "x": 273,
+                "y": 0,
+                "w": 120,
+                "h": 18,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 120,
+                "h": 18
+            },
+            "sourceSize": {
+                "w": 120,
+                "h": 18
+            },
+            "rotated": false,
+            "trimed": false
+        }
+    },
+    "meta": {
+        "app": "http:\/\/www.layabox.com",
+        "version": "0.1.0 alpha",
+        "format": "json",
+        "scale": 1,
+        "image": "警告框.png",
+        "prefix": "template\/警告框\/"
+    }
+}
