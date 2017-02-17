@@ -21,6 +21,7 @@ class Game{
         this.stage = Laya.stage;
         this.timer = Laya.timer;
 
+        this.stage.screenMode = "horizontal";
         this.stage.scaleMode = "showall";
         this.stage.bgColor = "#232628";
         this.stage.alignV = Laya.Stage.ALIGN_MIDDLE;

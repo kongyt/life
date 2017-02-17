@@ -8,9 +8,9 @@ var game:LifeGame  = new LifeGame(800, 480, true);
 GM.instance().logI("Register game to manager!");
 GM.instance().setGame(game);
 
-// 显示性能信息
-GM.instance().logI("Show game stat!");
-game.showGameStat(0,0);
+// // 显示性能信息
+// GM.instance().logI("Show game stat!");
+// game.showGameStat(0,0);
 
 // 启动游戏
 GM.instance().logI("Start game");

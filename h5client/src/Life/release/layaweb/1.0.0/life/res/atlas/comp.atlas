@@ -1,0 +1,222 @@
+{
+    "frames": {
+        "button.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 75,
+                "h": 69,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 75,
+                "h": 69
+            },
+            "sourceSize": {
+                "w": 75,
+                "h": 69
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "hscroll$bar.png": {
+            "frame": {
+                "x": 0,
+                "y": 71,
+                "w": 21,
+                "h": 51,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 21,
+                "h": 51
+            },
+            "sourceSize": {
+                "w": 21,
+                "h": 51
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "vscroll$bar.png": {
+            "frame": {
+                "x": 77,
+                "y": 0,
+                "w": 17,
+                "h": 63,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 17,
+                "h": 63
+            },
+            "sourceSize": {
+                "w": 17,
+                "h": 63
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "hscroll$down.png": {
+            "frame": {
+                "x": 23,
+                "y": 71,
+                "w": 17,
+                "h": 51,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 17,
+                "h": 51
+            },
+            "sourceSize": {
+                "w": 17,
+                "h": 51
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "hscroll$up.png": {
+            "frame": {
+                "x": 96,
+                "y": 0,
+                "w": 17,
+                "h": 51,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 17,
+                "h": 51
+            },
+            "sourceSize": {
+                "w": 17,
+                "h": 51
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "vscroll$down.png": {
+            "frame": {
+                "x": 42,
+                "y": 71,
+                "w": 17,
+                "h": 51,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 17,
+                "h": 51
+            },
+            "sourceSize": {
+                "w": 17,
+                "h": 51
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "vscroll$up.png": {
+            "frame": {
+                "x": 115,
+                "y": 0,
+                "w": 17,
+                "h": 51,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 17,
+                "h": 51
+            },
+            "sourceSize": {
+                "w": 17,
+                "h": 51
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "progress$bar.png": {
+            "frame": {
+                "x": 61,
+                "y": 71,
+                "w": 50,
+                "h": 14,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 50,
+                "h": 14
+            },
+            "sourceSize": {
+                "w": 50,
+                "h": 14
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "hslider$bar.png": {
+            "frame": {
+                "x": 61,
+                "y": 87,
+                "w": 14,
+                "h": 42,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 14,
+                "h": 42
+            },
+            "sourceSize": {
+                "w": 14,
+                "h": 42
+            },
+            "rotated": false,
+            "trimed": false
+        },
+        "vslider$bar.png": {
+            "frame": {
+                "x": 77,
+                "y": 87,
+                "w": 14,
+                "h": 42,
+                "idx": 0
+            },
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 14,
+                "h": 42
+            },
+            "sourceSize": {
+                "w": 14,
+                "h": 42
+            },
+            "rotated": false,
+            "trimed": false
+        }
+    },
+    "meta": {
+        "app": "http:\/\/www.layabox.com",
+        "version": "0.1.0 alpha",
+        "format": "json",
+        "scale": 1,
+        "image": "comp.png",
+        "prefix": "comp\/"
+    }
+}
