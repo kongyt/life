@@ -121,12 +121,31 @@ class GameMap extends Actor{
                     }
                 }  
                 this.building.alpha = 1;
-                this.select = 0;   
+                this.select = 0;
+
+                var progress:laya.ui.ProgressBar = new laya.ui.ProgressBar("res/ui/building_progress.png");
+                progress.pos(10,  -30);
+                progress.width = this.building.width - 20;
+                progress.height = 10;
+                progress.value = 0;
+                progress.timer.frameLoop(1, this, this.onChangeProgress,[progress]);
+                this.building.addChild(progress); 
                 this.building = null;       
             }
             
         }
 
+    }
+
+    onChangeProgress(progress:laya.ui.ProgressBar, e:Event):void{
+        GM.instance().logD("onChangeProgress");
+        if(progress.value < 1){
+            progress.value += 1/5 * progress.timer.delta/1000;
+            if(progress.value > 1){
+                progress.value = 1;
+                progress.removeSelf();
+            }
+        }
     }
 
     onMouseUp(e:Event):void{

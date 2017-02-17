@@ -12,9 +12,7 @@ class LifeGame extends Game{
         this.map = new GameMap();
         this.stage.addChild(this.map);
 
-        Laya.loader.load("res/atlas/comp.json", Laya.Handler.create(this, this.onLoaded), null, Laya.Loader.ATLAS);
-        
-        
+        Laya.loader.load(["res/atlas/comp.json",], Laya.Handler.create(this, this.onLoaded), null, Laya.Loader.ATLAS);
     }
 
     onLoaded(){

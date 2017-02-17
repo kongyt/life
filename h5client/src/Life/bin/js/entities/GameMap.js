@@ -111,7 +111,24 @@ var GameMap = (function (_super) {
                 }
                 this.building.alpha = 1;
                 this.select = 0;
+                var progress = new laya.ui.ProgressBar("res/ui/building_progress.png");
+                progress.pos(10, -30);
+                progress.width = this.building.width - 20;
+                progress.height = 10;
+                progress.value = 0;
+                progress.timer.frameLoop(1, this, this.onChangeProgress, [progress]);
+                this.building.addChild(progress);
                 this.building = null;
+            }
+        }
+    };
+    GameMap.prototype.onChangeProgress = function (progress, e) {
+        GM.instance().logD("onChangeProgress");
+        if (progress.value < 1) {
+            progress.value += 1 / 5 * progress.timer.delta / 1000;
+            if (progress.value > 1) {
+                progress.value = 1;
+                progress.removeSelf();
             }
         }
     };
