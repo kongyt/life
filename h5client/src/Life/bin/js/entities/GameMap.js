@@ -11,8 +11,9 @@ var GameMap = (function (_super) {
         _this.mapCellHeight = 0;
         _this.mapWidth = 0;
         _this.mapHeight = 0;
-        _this.debugArea = false;
+        _this.debugArea = true;
         _this.select = 0;
+        _this.selectPerson = 0;
         _this.building1ok = true;
         _this.building2ok = true;
         _this.building3ok = true;
@@ -27,6 +28,10 @@ var GameMap = (function (_super) {
         _this.mapWidth = Math.floor(_this.width / _this.mapCellWidth);
         _this.mapHeight = Math.floor(_this.height / _this.mapCellHeight);
         _this.mouseEnabled = true;
+        _this.mapLayer = new Layer();
+        _this.addChild(_this.mapLayer);
+        _this.peopleLayer = new Layer();
+        _this.addChild(_this.peopleLayer);
         _this.on("mousedown", _this, _this.onMouseDown);
         _this.on("mouseup", _this, _this.onMouseUp);
         _this.on("dragstart", _this, _this.onDragStart);
@@ -48,9 +53,6 @@ var GameMap = (function (_super) {
         for (var i = 0; i < this.mapHeight + 1; i++) {
             this.graphics.drawLine(0, i * this.mapCellHeight, this.mapCellWidth * this.mapWidth, i * this.mapCellHeight, "#ff0000", 1);
         }
-        // Laya.loader.load("../res/building1.png",Laya.Handler.create(this, this.onLoaded, [1]), null, Laya.Loader.ATLAS);
-        // Laya.loader.load("../res/building2.png",Laya.Handler.create(this, this.onLoaded, [2]), null, Laya.Loader.ATLAS);
-        // Laya.loader.load("../res/building3.png",Laya.Handler.create(this, this.onLoaded, [3]), null, Laya.Loader.ATLAS);
     };
     GameMap.prototype.onLoaded = function (which) {
         switch (which) {
@@ -76,7 +78,7 @@ var GameMap = (function (_super) {
         this.pos(Laya.stage.mouseX - this.dragStartX + this.old_x, Laya.stage.mouseY - this.dragStartY + this.old_y);
     };
     GameMap.prototype.onMouseDown = function (e) {
-        if (this.select == 0) {
+        if (this.select == 0 && this.selectPerson == 0) {
             this.startDrag();
         }
         else {
@@ -87,48 +89,48 @@ var GameMap = (function (_super) {
             y /= this.mapCellHeight;
             y = Math.floor(y);
             var flag = true;
-            x -= Math.floor(Math.ceil(this.building.width / this.mapCellWidth) / 2);
-            y -= Math.floor(Math.ceil(this.building.height / this.mapCellHeight) / 2);
-            if (x < 0 || y < 0 || x + Math.ceil(this.building.width / this.mapCellWidth) > this.mapWidth || y + Math.ceil(this.building.height / this.mapCellHeight) > this.mapHeight) {
-                return;
-            }
-            for (var i = x; i < x + Math.ceil(this.building.width / this.mapCellWidth); i++) {
-                for (var j = y; j < y + Math.ceil(this.building.height / this.mapCellHeight); j++) {
-                    if (this.map[i][j] != 0) {
-                        flag = false;
+            if (this.select != 0) {
+                if (x - Math.ceil(this.building.width / 2 / this.mapCellWidth) < 0 || y - Math.ceil(this.building.height / 2 / this.mapCellHeight) < 0 || x + Math.ceil(this.building.width / 2 / this.mapCellWidth) > this.mapWidth || y + Math.ceil(this.building.height / 2 / this.mapCellHeight) > this.mapHeight) {
+                    return;
+                }
+                for (var i = x - Math.ceil((this.building.width / 2) / this.mapCellWidth); i < x + Math.ceil((this.building.width / 2) / this.mapCellWidth); i++) {
+                    for (var j = y - Math.ceil((this.building.height / 2) / this.mapCellHeight); j < y + Math.ceil(this.building.height / 2 / this.mapCellHeight); j++) {
+                        if (this.map[i][j] != 0) {
+                            flag = false;
+                        }
                     }
                 }
-            }
-            if (flag) {
-                this.building.pos(x * this.mapCellWidth, y * this.mapCellHeight);
-                if (this.debugArea) {
-                    this.graphics.drawRect(x * this.mapCellWidth, y * this.mapCellHeight, this.mapCellWidth * Math.ceil(this.building.width / this.mapCellWidth), this.mapCellHeight * Math.ceil(this.building.height / this.mapCellHeight), "#00FF00");
-                }
-                for (var i = x; i < x + Math.ceil(this.building.width / this.mapCellWidth); i++) {
-                    for (var j = y; j < y + Math.ceil(this.building.height / this.mapCellHeight); j++) {
-                        this.map[i][j] = 1;
+                if (flag) {
+                    this.building.pos(x * this.mapCellWidth, y * this.mapCellHeight);
+                    // if(this.debugArea){
+                    //     this.graphics.drawRect(x*this.mapCellWidth ,y*this.mapCellHeight,
+                    //         this.mapCellWidth * Math.ceil(this.building.width/this.mapCellWidth),this.mapCellHeight * Math.ceil(this.building.height/this.mapCellHeight),"#00FF00");
+                    // }           
+                    for (var i = x - Math.ceil((this.building.width / 2) / this.mapCellWidth); i < x + Math.ceil((this.building.width / 2) / this.mapCellWidth); i++) {
+                        for (var j = y - Math.ceil((this.building.height / 2) / this.mapCellHeight); j < y + Math.ceil(this.building.height / 2 / this.mapCellHeight); j++) {
+                            this.map[i][j] = 1;
+                        }
                     }
+                    this.building.alpha = 1;
+                    this.building.startBuild();
+                    this.select = 0;
+                    this.building = null;
+                    this.drawDebugRect();
                 }
-                this.building.alpha = 1;
-                this.select = 0;
-                var progress = new laya.ui.ProgressBar("res/ui/building_progress.png");
-                progress.pos(10, -30);
-                progress.width = this.building.width - 20;
-                progress.height = 10;
-                progress.value = 0;
-                progress.timer.frameLoop(1, this, this.onChangeProgress, [progress]);
-                this.building.addChild(progress);
-                this.building = null;
             }
-        }
-    };
-    GameMap.prototype.onChangeProgress = function (progress, e) {
-        GM.instance().logD("onChangeProgress");
-        if (progress.value < 1) {
-            progress.value += 1 / 5 * progress.timer.delta / 1000;
-            if (progress.value > 1) {
-                progress.value = 1;
-                progress.removeSelf();
+            else if (this.selectPerson != 0) {
+                if (x < 0 || y < 0 || x + Math.ceil(this.person.width / 2 / this.mapCellWidth) > this.mapWidth || y + Math.ceil(this.person.height / 2 / this.mapCellHeight) > this.mapHeight) {
+                    return;
+                }
+                else {
+                    this.person.alpha = 1;
+                    this.selectPerson = 0;
+                    this.astar = new AStar(this.map);
+                    console.log("" + this.person.x);
+                    var path = this.astar.findFastWay(new Laya.Point(Math.floor(this.person.x), Math.floor(this.person.y)), new Laya.Point(100, 100));
+                    this.person.moveTo(path[0].x * 16, path[1].y * 16);
+                    this.person = null;
+                }
             }
         }
     };
@@ -136,32 +138,27 @@ var GameMap = (function (_super) {
         this.stopDrag();
     };
     GameMap.prototype.onMouseMove = function (e) {
-        if (this.select == 0) {
-            return;
-        }
         var x = Laya.stage.mouseX - this.x;
         var y = Laya.stage.mouseY - this.y;
         x /= this.mapCellWidth;
         x = Math.floor(x);
         y /= this.mapCellHeight;
         y = Math.floor(y);
-        x -= Math.floor(Math.ceil(this.building.width / this.mapCellWidth) / 2);
-        y -= Math.floor(Math.ceil(this.building.height / this.mapCellHeight) / 2);
-        if (this.debugArea) {
-            this.graphics.drawRect(x * this.mapCellWidth, y * this.mapCellHeight, this.mapCellWidth * Math.ceil(this.building.width / this.mapCellWidth), this.mapCellHeight * Math.ceil(this.building.height / this.mapCellHeight), "#00FF00");
+        if (this.select != 0) {
+            this.building.pos(x * this.mapCellWidth, y * this.mapCellHeight);
         }
-        this.building.pos(x * this.mapCellWidth, y * this.mapCellHeight);
+        else if (this.selectPerson != 0) {
+            this.person.pos((x + 0.5) * this.mapCellWidth, y * this.mapCellHeight);
+        }
     };
     GameMap.prototype.setSelect = function (select) {
         if (this.select != 0) {
             return;
         }
         this.select = select;
-        this.building = new Laya.Sprite();
+        this.building = new Building("res/building" + this.select + ".png");
         this.building.alpha = 0.5;
-        this.building.loadImage("res/building" + this.select + ".png");
-        this.building.autoSize = true;
-        this.addChild(this.building);
+        this.mapLayer.addChild(this.building);
         this.on("mousemove", this, this.onMouseMove);
         var x = Laya.stage.mouseX - this.x;
         var y = Laya.stage.mouseY - this.y;
@@ -169,12 +166,24 @@ var GameMap = (function (_super) {
         x = Math.floor(x);
         y /= this.mapCellHeight;
         y = Math.floor(y);
-        x -= Math.floor(Math.ceil(this.building.width / this.mapCellWidth) / 2);
-        y -= Math.floor(Math.ceil(this.building.height / this.mapCellHeight) / 2);
-        if (this.debugArea) {
-            this.graphics.drawRect(x * this.mapCellWidth, y * this.mapCellHeight, this.mapCellWidth * Math.ceil(this.building.width / this.mapCellWidth), this.mapCellHeight * Math.ceil(this.building.height / this.mapCellHeight), "#00FF00");
-        }
         this.building.pos(x * this.mapCellWidth, y * this.mapCellHeight);
+    };
+    GameMap.prototype.setSelectPerson = function (selectPerson) {
+        if (this.selectPerson != 0) {
+            return;
+        }
+        this.selectPerson = selectPerson;
+        this.person = new Person("res/person.png");
+        this.person.alpha = 0.5;
+        this.peopleLayer.addChild(this.person);
+        this.on("mousemove", this, this.onMouseMove);
+        var x = Laya.stage.mouseX - this.x;
+        var y = Laya.stage.mouseY - this.y;
+        x /= this.mapCellWidth;
+        x = Math.floor(x);
+        y /= this.mapCellHeight;
+        y = Math.floor(y);
+        this.person.pos(x * this.mapCellWidth, y * this.mapCellHeight);
     };
     GameMap.prototype.clearSelect = function () {
         if (this.select != 0) {
@@ -184,12 +193,18 @@ var GameMap = (function (_super) {
         }
     };
     GameMap.prototype.clearAll = function () {
+        this.graphics.clear();
         this.clearSelect();
-        this.destroyChildren();
-        ;
+        this.mapLayer.destroyChildren();
+        this.peopleLayer.destroyChildren();
+        this.init();
+    };
+    GameMap.prototype.drawDebugRect = function () {
         for (var i = 0; i < this.mapWidth; i++) {
             for (var j = 0; j < this.mapHeight; j++) {
-                this.map[i][j] = 0;
+                if (this.map[i][j] != 0) {
+                    this.graphics.drawRect(i * this.mapCellWidth + 1, j * this.mapCellHeight + 1, this.mapCellWidth - 1, this.mapCellHeight - 1, "#00FF00");
+                }
             }
         }
     };

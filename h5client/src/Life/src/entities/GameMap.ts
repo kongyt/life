@@ -6,9 +6,15 @@ class GameMap extends Actor{
     public mapWidth:number = 0;
     public mapHeight:number = 0;
     public map:number[][];
-    private debugArea:boolean = false;
+    private debugArea:boolean = true;
     private select = 0;
-    private building:Laya.Sprite;
+    private selectPerson = 0;
+    private person:Person;
+    private building:Building;
+
+    private astar:AStar;
+    private mapLayer:Layer;
+    private peopleLayer:Layer;
     constructor(){
         super();
         this.width = 4000;
@@ -18,6 +24,11 @@ class GameMap extends Actor{
         this.mapWidth = Math.floor(this.width/this.mapCellWidth);
         this.mapHeight = Math.floor(this.height/this.mapCellHeight);
         this.mouseEnabled = true;
+
+        this.mapLayer = new Layer();
+        this.addChild(this.mapLayer);
+        this.peopleLayer = new Layer();
+        this.addChild(this.peopleLayer);
 
         this.on("mousedown", this, this.onMouseDown);
         this.on("mouseup", this, this.onMouseUp);
@@ -43,10 +54,6 @@ class GameMap extends Actor{
         for(var i:number = 0; i < this.mapHeight + 1; i++){
             this.graphics.drawLine(0, i*this.mapCellHeight, this.mapCellWidth * this.mapWidth, i*this.mapCellHeight, "#ff0000", 1);   
         }     
-
-        // Laya.loader.load("../res/building1.png",Laya.Handler.create(this, this.onLoaded, [1]), null, Laya.Loader.ATLAS);
-        // Laya.loader.load("../res/building2.png",Laya.Handler.create(this, this.onLoaded, [2]), null, Laya.Loader.ATLAS);
-        // Laya.loader.load("../res/building3.png",Laya.Handler.create(this, this.onLoaded, [3]), null, Laya.Loader.ATLAS);
 
     }
 
@@ -85,7 +92,7 @@ class GameMap extends Actor{
     }
 
     onMouseDown(e:Event):void{
-        if(this.select == 0){
+        if(this.select == 0 && this.selectPerson == 0){
             this.startDrag();
         }else{
             var x:number = Laya.stage.mouseX - this.x;
@@ -95,57 +102,54 @@ class GameMap extends Actor{
             y /= this.mapCellHeight;
             y = Math.floor(y); 
             var flag:boolean = true;
-            x -= Math.floor(Math.ceil(this.building.width/this.mapCellWidth)/2);
-            y -= Math.floor(Math.ceil(this.building.height/this.mapCellHeight)/2);
-            if(x < 0 || y < 0 || x + Math.ceil(this.building.width/this.mapCellWidth) > this.mapWidth || y + Math.ceil(this.building.height/this.mapCellHeight) > this.mapHeight){
-                return;
-            }
-            for(var i:number = x; i < x + Math.ceil(this.building.width/this.mapCellWidth); i++){
-                for(var j:number = y; j < y + Math.ceil(this.building.height/this.mapCellHeight); j++){
-                   if( this.map[i][j] != 0){
-                       flag = false;
-                   }
+
+            if(this.select != 0){
+                if(x - Math.ceil(this.building.width/2/this.mapCellWidth) < 0 || y - Math.ceil(this.building.height/2/this.mapCellHeight)< 0 || x + Math.ceil(this.building.width/2/this.mapCellWidth) > this.mapWidth || y + Math.ceil(this.building.height/2/this.mapCellHeight) > this.mapHeight){
+                     return;
                 }
-            } 
-            if(flag){
-                this.building.pos(x*this.mapCellWidth, y*this.mapCellHeight);
-
-                if(this.debugArea){
-                    this.graphics.drawRect(x*this.mapCellWidth ,y*this.mapCellHeight,
-                        this.mapCellWidth * Math.ceil(this.building.width/this.mapCellWidth),this.mapCellHeight * Math.ceil(this.building.height/this.mapCellHeight),"#00FF00");
-                }            
-            
-                for(var i:number = x; i < x + Math.ceil(this.building.width/this.mapCellWidth); i++){
-                    for(var j:number = y; j < y + Math.ceil(this.building.height/this.mapCellHeight); j++){
-                        this.map[i][j] = 1;
+                for(var i:number = x - Math.ceil((this.building.width/2)/this.mapCellWidth); i < x + Math.ceil((this.building.width/2)/this.mapCellWidth); i++){
+                    for(var j:number = y - Math.ceil((this.building.height/2)/this.mapCellHeight); j < y + Math.ceil(this.building.height/2/this.mapCellHeight); j++){
+                        if( this.map[i][j] != 0){
+                            flag = false;
+                        }
                     }
-                }  
-                this.building.alpha = 1;
-                this.select = 0;
+                } 
+                if(flag){
+                    this.building.pos(x*this.mapCellWidth, y*this.mapCellHeight);
 
-                var progress:laya.ui.ProgressBar = new laya.ui.ProgressBar("res/ui/building_progress.png");
-                progress.pos(10,  -30);
-                progress.width = this.building.width - 20;
-                progress.height = 10;
-                progress.value = 0;
-                progress.timer.frameLoop(1, this, this.onChangeProgress,[progress]);
-                this.building.addChild(progress); 
-                this.building = null;       
+                // if(this.debugArea){
+                //     this.graphics.drawRect(x*this.mapCellWidth ,y*this.mapCellHeight,
+                //         this.mapCellWidth * Math.ceil(this.building.width/this.mapCellWidth),this.mapCellHeight * Math.ceil(this.building.height/this.mapCellHeight),"#00FF00");
+                // }           
+
+                    for(var i:number = x - Math.ceil((this.building.width/2)/this.mapCellWidth); i < x + Math.ceil((this.building.width/2)/this.mapCellWidth); i++){
+                        for(var j:number = y - Math.ceil((this.building.height/2)/this.mapCellHeight); j < y + Math.ceil(this.building.height/2/this.mapCellHeight); j++){
+                            this.map[i][j] = 1;
+                        }
+                    }  
+
+                    this.building.alpha = 1;
+                    this.building.startBuild();
+                    this.select = 0;
+                    this.building = null;      
+                    this.drawDebugRect(); 
+                }            
+            }else if(this.selectPerson != 0){
+                if(x < 0 || y < 0 || x + Math.ceil(this.person.width/2/this.mapCellWidth) > this.mapWidth || y + Math.ceil(this.person.height/2/this.mapCellHeight) > this.mapHeight){
+                     return;
+                }else{
+                    this.person.alpha = 1;
+                    this.selectPerson = 0;
+                    this.astar = new AStar(this.map);
+                    console.log(""+this.person.x);
+                    var path:Array<Laya.Point> = this.astar.findFastWay(new Laya.Point(Math.floor(this.person.x),Math.floor(this.person.y)), new Laya.Point(100,100));
+                    this.person.moveTo(path[0].x * 16,path[1].y * 16);
+                    this.person = null;      
+                }
             }
-            
+
         }
 
-    }
-
-    onChangeProgress(progress:laya.ui.ProgressBar, e:Event):void{
-        GM.instance().logD("onChangeProgress");
-        if(progress.value < 1){
-            progress.value += 1/5 * progress.timer.delta/1000;
-            if(progress.value > 1){
-                progress.value = 1;
-                progress.removeSelf();
-            }
-        }
     }
 
     onMouseUp(e:Event):void{
@@ -153,9 +157,6 @@ class GameMap extends Actor{
     }
 
     onMouseMove(e:Event):void{
-        if(this.select == 0){
-            return;
-        }
         var x:number = Laya.stage.mouseX - this.x;
         var y:number = Laya.stage.mouseY - this.y;
         x /= this.mapCellWidth;
@@ -163,13 +164,12 @@ class GameMap extends Actor{
         y /= this.mapCellHeight;
         y = Math.floor(y);  
        
-        x -= Math.floor(Math.ceil(this.building.width/this.mapCellWidth)/2);
-        y -= Math.floor(Math.ceil(this.building.height/this.mapCellHeight)/2);
-        if(this.debugArea){
-            this.graphics.drawRect(x*this.mapCellWidth ,y*this.mapCellHeight,
-                        this.mapCellWidth * Math.ceil(this.building.width/this.mapCellWidth),this.mapCellHeight * Math.ceil(this.building.height/this.mapCellHeight),"#00FF00");
+       if(this.select != 0){
+            this.building.pos(x*this.mapCellWidth, y*this.mapCellHeight);    
+        }else if(this.selectPerson != 0){
+            this.person.pos((x+0.5)*this.mapCellWidth, y*this.mapCellHeight);
         }
-        this.building.pos(x*this.mapCellWidth, y*this.mapCellHeight);        
+           
     }
 
     setSelect(select:number){
@@ -178,13 +178,10 @@ class GameMap extends Actor{
         }
         this.select = select;
 
-        this.building = new Laya.Sprite();
-        this.building.alpha = 0.5;
-        this.building.loadImage("res/building"+this.select+".png");
+        this.building = new Building("res/building"+this.select+".png");
+        this.building.alpha = 0.5;        
         
-        
-        this.building.autoSize = true;
-        this.addChild(this.building);
+        this.mapLayer.addChild(this.building);
         this.on("mousemove", this, this.onMouseMove);
 
         var x:number = Laya.stage.mouseX - this.x;
@@ -194,13 +191,29 @@ class GameMap extends Actor{
         y /= this.mapCellHeight;
         y = Math.floor(y); 
        
-        x -= Math.floor(Math.ceil(this.building.width/this.mapCellWidth)/2);
-        y -= Math.floor(Math.ceil(this.building.height/this.mapCellHeight)/2);
-        if(this.debugArea){
-            this.graphics.drawRect(x*this.mapCellWidth ,y*this.mapCellHeight,
-                    this.mapCellWidth * Math.ceil(this.building.width/this.mapCellWidth),this.mapCellHeight * Math.ceil(this.building.height/this.mapCellHeight),"#00FF00");
-        }
         this.building.pos(x*this.mapCellWidth, y*this.mapCellHeight);      
+    }
+
+    setSelectPerson(selectPerson:number){
+        if(this.selectPerson != 0){
+            return;
+        }
+        this.selectPerson = selectPerson;
+
+        this.person = new Person("res/person.png");
+        this.person.alpha = 0.5;        
+        
+        this.peopleLayer.addChild(this.person);
+        this.on("mousemove", this, this.onMouseMove);
+
+        var x:number = Laya.stage.mouseX - this.x;
+        var y:number = Laya.stage.mouseY - this.y;
+        x /= this.mapCellWidth;
+        x = Math.floor(x);
+        y /= this.mapCellHeight;
+        y = Math.floor(y); 
+       
+        this.person.pos(x*this.mapCellWidth, y*this.mapCellHeight);  
     }
 
     public clearSelect(){
@@ -212,12 +225,25 @@ class GameMap extends Actor{
     }
 
     public clearAll(){
+
+        this.graphics.clear();
         this.clearSelect();
-        this.destroyChildren();;
+        this.mapLayer.destroyChildren();
+        this.peopleLayer.destroyChildren();
+        this.init();
+    }
+
+
+    drawDebugRect(){
+
         for(var i:number = 0; i < this.mapWidth; i++){
             for(var j:number = 0; j < this.mapHeight; j++){
-                this.map[i][j] = 0;
+                if(this.map[i][j] != 0){
+                    this.graphics.drawRect(i*this.mapCellWidth +1 ,j*this.mapCellHeight+1,
+                        this.mapCellWidth - 1 ,this.mapCellHeight-1,"#00FF00");
+                }
             }
         }
     }
+
 }

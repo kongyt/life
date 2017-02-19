@@ -18,10 +18,18 @@ class BuildingList extends ui.BuildingListUI{
         this.buildingBtn5.on("click",this, this.onClick, [5]);
         this.buildingBtn6.on("click",this, this.onClick, [6]);
         this.buildingBtn7.on("click",this, this.onClick, [7]);
+        this.personBtn.on("click", this, this.onPersonBtn);
         this.clearBtn.on("click", this, this.onClearBtn);
         this.clearAllBtn.on("click", this, this.onClearAll);
     }
 
+
+    onPersonBtn(){
+        this.onClearBtn();
+        if(this.hasMap){
+            this.map.setSelectPerson(1);;
+        }
+    }
 
     onClick(select:number, e:Event):void{
         this.select = select;
